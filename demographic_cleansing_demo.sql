@@ -6,6 +6,23 @@
 -- Target: 80%+ automation with human review for edge cases
 -- ============================================================================
 
+-- Step 0: Setup - Use appropriate role, warehouse, database, and schema
+-- ============================================================================
+USE ROLE SF_INTELLIGENCE_DEMO;
+USE WAREHOUSE APP_WH;
+USE DATABASE SANDBOX;
+
+-- Create a dedicated schema for demographic cleansing demo
+CREATE SCHEMA IF NOT EXISTS DEMOGRAPHIC_CLEANSING_DEMO;
+USE SCHEMA DEMOGRAPHIC_CLEANSING_DEMO;
+
+-- Verify setup
+SELECT 
+    CURRENT_ROLE() AS current_role,
+    CURRENT_WAREHOUSE() AS current_warehouse,
+    CURRENT_DATABASE() AS current_database,
+    CURRENT_SCHEMA() AS current_schema;
+
 -- Step 1: Create a demo table with messy demographic data
 -- ============================================================================
 CREATE OR REPLACE TABLE raw_patient_demographics (
