@@ -27,7 +27,7 @@ Use **Snowflake Cortex AI Functions** to automate this process:
 SNOWFLAKE.CORTEX.AI_CLASSIFY(
     sex,
     ARRAY_CONSTRUCT('Male', 'Female', 'Other', 'Unknown')
-)
+):labels[0]  -- Returns the first (and only) classification label
 ```
 
 **2. `AI_COMPLETE`** - Extracts and validates numeric data from messy text
@@ -108,7 +108,7 @@ SNOWFLAKE.CORTEX.AI_CLASSIFY(
         OBJECT_CONSTRUCT('label', 'Unknown', 
                         'description', 'Unknown or not specified')
     )
-) AS sex_cleansed
+):labels[0] AS sex_cleansed
 ```
 
 ### Step 2: Cleanse Race Field
@@ -126,7 +126,7 @@ SNOWFLAKE.CORTEX.AI_CLASSIFY(
         OBJECT_CONSTRUCT('label', 'Other', 'description', 'Other race'),
         OBJECT_CONSTRUCT('label', 'Unknown', 'description', 'Unknown or prefer not to say')
     )
-) AS race_cleansed
+):labels[0] AS race_cleansed
 ```
 
 ### Step 3: Cleanse Age Field
@@ -170,11 +170,11 @@ END AS requires_human_review
 CASE 
     WHEN sex IN ('Male', 'Female', 'Other', 'Unknown') 
         THEN sex  -- Already clean
-    ELSE SNOWFLAKE.CORTEX.AI_CLASSIFY(sex, categories)
+    ELSE SNOWFLAKE.CORTEX.AI_CLASSIFY(sex, categories):labels[0]
 END
 
 -- ❌ BAD: Apply AI to all records
-SNOWFLAKE.CORTEX.AI_CLASSIFY(sex, categories)  -- Expensive!
+SNOWFLAKE.CORTEX.AI_CLASSIFY(sex, categories):labels[0]  -- Expensive!
 ```
 
 ### Batch Processing

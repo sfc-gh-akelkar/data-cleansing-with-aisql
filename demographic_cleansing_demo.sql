@@ -111,7 +111,7 @@ WITH sex_classification AS (
                     'description', 'Unknown, not specified, null, or prefer not to answer'
                 )
             )
-        ) AS sex_cleansed
+        ):labels[0] AS sex_cleansed
     FROM raw_patient_demographics
 ),
 race_classification AS (
@@ -163,7 +163,7 @@ race_classification AS (
                     'description', 'Unknown, not specified, prefer not to say, or decline to state'
                 )
             )
-        ) AS race_cleansed
+        ):labels[0] AS race_cleansed
     FROM sex_classification
 ),
 age_cleansing AS (
@@ -340,7 +340,7 @@ BEGIN
                     OBJECT_CONSTRUCT(''label'', ''Other'', ''description'', ''Non-binary or other identities''),
                     OBJECT_CONSTRUCT(''label'', ''Unknown'', ''description'', ''Unknown or not specified'')
                 )
-            ) AS sex_cleansed
+            ):labels[0] AS sex_cleansed
         FROM ' || source_table || '
     ),
     race_classification AS (
@@ -359,7 +359,7 @@ BEGIN
                     OBJECT_CONSTRUCT(''label'', ''Other'', ''description'', ''Other race''),
                     OBJECT_CONSTRUCT(''label'', ''Unknown'', ''description'', ''Unknown or prefer not to say'')
                 )
-            ) AS race_cleansed
+            ):labels[0] AS race_cleansed
         FROM sex_classification
     ),
     age_cleansing AS (
@@ -413,7 +413,7 @@ SELECT
         ELSE SNOWFLAKE.CORTEX.AI_CLASSIFY(
             COALESCE(sex, 'Unknown'),
             ARRAY_CONSTRUCT('Male', 'Female', 'Other', 'Unknown')
-        )
+        ):labels[0]
     END AS sex_cleansed,
     -- Only cleanse race if it's not already in standard format
     CASE 
@@ -441,7 +441,7 @@ SELECT
                 'Other',
                 'Unknown'
             )
-        )
+        ):labels[0]
     END AS race_cleansed,
     -- Only cleanse age if it's not a valid number
     CASE 
