@@ -195,13 +195,24 @@ age_cleansing AS (
         SNOWFLAKE.CORTEX.AI_COMPLETE(
             'llama3.1-8b',  -- Fast, cost-effective model
             CONCAT(
-                'Extract the numeric age from this text: "', COALESCE(age, 'unknown'), '". ',
-                'Rules: ',
-                '1. Return ONLY a number between 0-120, nothing else. ',
-                '2. If age is clearly invalid (>120, negative, or cannot be determined), return "INVALID". ',
-                '3. For infants/newborns return 0. ',
-                '4. For age ranges, return the midpoint. ',
-                'Examples: "45 years" -> 45, "32 yrs" -> 32, "infant" -> 0, "unknown" -> INVALID, "150" -> INVALID'
+                'Extract the patient age as a 2 or 3 digit number from this text: "', COALESCE(age, 'unknown'), '"', CHAR(10), CHAR(10),
+                'STRICT RULES:', CHAR(10),
+                '1. Return ONLY a number (0-120) or the word "INVALID" - no other text, punctuation, or explanation', CHAR(10),
+                '2. Valid age range: 0 to 120 years', CHAR(10),
+                '3. If age is >120, <0, unclear, or missing: return "INVALID"', CHAR(10), CHAR(10),
+                'SPECIAL CASES:', CHAR(10),
+                '- Infants/newborns/babies: return 0', CHAR(10),
+                '- Age ranges (e.g., "mid-30s", "early 20s"): return midpoint (35, 22)', CHAR(10),
+                '- Text numbers (e.g., "forty-five"): convert to digits (45)', CHAR(10),
+                '- Units ignored (e.g., "45 years", "32 yrs", "28yo"): extract number only', CHAR(10),
+                '- Prefixes ignored (e.g., "Age: 45"): extract number only', CHAR(10), CHAR(10),
+                'EXAMPLES:', CHAR(10),
+                '"45 years" → 45', CHAR(10),
+                '"infant" → 0', CHAR(10),
+                '"forty-five" → 45', CHAR(10),
+                '"mid-30s" → 35', CHAR(10),
+                '"150" → INVALID', CHAR(10),
+                '"unknown" → INVALID'
             )
         ) AS age_extracted
     FROM race_classification
@@ -385,9 +396,10 @@ BEGIN
             SNOWFLAKE.CORTEX.AI_COMPLETE(
                 ''llama3.1-8b'',
                 CONCAT(
-                    ''Extract numeric age from: "'', COALESCE(age, ''unknown''), ''". '',
-                    ''Return ONLY a number 0-120 or "INVALID". '',
-                    ''Examples: "45 years" -> 45, "infant" -> 0, "unknown" -> INVALID''
+                    ''Extract patient age (0-120) from: "'', COALESCE(age, ''unknown''), ''". '',
+                    ''Return ONLY a number or "INVALID". '',
+                    ''Rules: infants=0, ranges=midpoint, text numbers=digits, >120=INVALID, <0=INVALID. '',
+                    ''Examples: "45 years"->45, "infant"->0, "mid-30s"->35, "150"->INVALID''
                 )
             ) AS age_extracted
         FROM race_classification
@@ -467,7 +479,11 @@ SELECT
         ELSE TRY_CAST(
             SNOWFLAKE.CORTEX.AI_COMPLETE(
                 'llama3.1-8b',
-                CONCAT('Extract numeric age from: "', age, '". Return only number or INVALID.')
+                CONCAT(
+                    'Extract patient age (0-120) from: "', age, '". ',
+                    'Return ONLY number or "INVALID". ',
+                    'Rules: infants=0, ranges=midpoint, >120=INVALID'
+                )
             ) AS INTEGER
         )
     END AS age_cleansed
