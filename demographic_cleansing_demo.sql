@@ -134,7 +134,7 @@ SELECT patient_id,
             'UNKNOWN'
         ) THEN UPPER(race)
         -- Otherwise use AI_COMPLETE to standardize
-        ELSE SNOWFLAKE.CORTEX.COMPLETE(
+        ELSE SNOWFLAKE.CORTEX.AI_COMPLETE(
             'llama3.3-70b',
             UPPER(CONCAT(
                 'Standardize this race value to OMB categories: "', COALESCE(race, 'unknown'), '". ',
@@ -146,5 +146,4 @@ SELECT patient_id,
             )
         ))
     END AS cleansed_race
-                
-FROM raw_patient_demographics; 
+FROM raw_patient_demographics;  
