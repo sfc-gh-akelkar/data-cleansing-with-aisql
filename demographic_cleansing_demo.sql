@@ -145,6 +145,6 @@ SELECT patient_id,
                 'Give no explanation. Return ONLY the standardized category name'
             )
         ))
-    END AS race_cleansed
+    END AS cleansed_race
                 
 FROM raw_patient_demographics; 
