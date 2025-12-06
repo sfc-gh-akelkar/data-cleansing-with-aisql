@@ -147,4 +147,4 @@ SELECT patient_id,
         ))
     END AS race_cleansed
                 
-FROM raw_patient_demographics;
+FROM raw_patient_demographics; 
