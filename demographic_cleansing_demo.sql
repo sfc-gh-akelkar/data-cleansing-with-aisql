@@ -111,7 +111,7 @@ SELECT patient_id,
                 WHEN TRY_CAST(age AS INTEGER) BETWEEN 0 AND 120  --Cost Optimization
                     THEN TRY_CAST(age AS INTEGER)
                ELSE TRY_CAST(
-                        SNOWFLAKE.CORTEX.COMPLETE(
+                        SNOWFLAKE.CORTEX.AI_COMPLETE(
                                 'llama4-maverick',
                                     CONCAT(
                                         'Extract only the numerical age from: "', age, '". ',
